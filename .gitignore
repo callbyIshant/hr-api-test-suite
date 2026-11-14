@@ -14,8 +14,10 @@ __pycache__/
 .coverage
 htmlcov/
 
-# Postman / Newman reports
+# Postman / Newman reports & modules
 newman/
+reports/
+node_modules/
 
 # Environment variables
 .env

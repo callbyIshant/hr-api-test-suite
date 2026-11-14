@@ -1,0 +1,909 @@
+{
+  "info": {
+    "_postman_id": "hr-attendance-api-suite-v1",
+    "name": "HR & Attendance REST API Automated Contract Suite",
+    "description": "Automated contract, RBAC, CRUD, and boundary test suite for HR & Attendance API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00_Setup & Auth",
+      "item": [
+        {
+          "name": "01 - Reset In-Memory Store",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is strictly below 300ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);",
+                  "});",
+                  "",
+                  "pm.test(\"Response adheres to JSON Schema\", function () {",
+                  "    var schema = {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"title\": \"ResetResponse\", \"type\": \"object\", \"required\": [\"message\"], \"properties\": {\"message\": {\"type\": \"string\"}}, \"additionalProperties\": false};",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/test/reset",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "test",
+                "reset"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02 - Admin Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is strictly below 300ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);",
+                  "});",
+                  "",
+                  "pm.test(\"Response adheres to JSON Schema\", function () {",
+                  "    var schema = {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"title\": \"LoginResponse\", \"type\": \"object\", \"required\": [\"access_token\", \"token_type\", \"role\", \"expires_in\"], \"properties\": {\"access_token\": {\"type\": \"string\"}, \"token_type\": {\"type\": \"string\"}, \"role\": {\"type\": \"string\"}, \"expires_in\": {\"type\": \"number\"}}, \"additionalProperties\": false};",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();\npm.environment.set('admin_token', jsonData.access_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"AdminPass123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03 - Employee Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is strictly below 300ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);",
+                  "});",
+                  "",
+                  "pm.test(\"Response adheres to JSON Schema\", function () {",
+                  "    var schema = {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"title\": \"LoginResponse\", \"type\": \"object\", \"required\": [\"access_token\", \"token_type\", \"role\", \"expires_in\"], \"properties\": {\"access_token\": {\"type\": \"string\"}, \"token_type\": {\"type\": \"string\"}, \"role\": {\"type\": \"string\"}, \"expires_in\": {\"type\": \"number\"}}, \"additionalProperties\": false};",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();\npm.environment.set('employee_token', jsonData.access_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"emp01\",\n  \"password\": \"EmpPass123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "01_RBAC & Auth Negative Checks",
+      "item": [
+        {
+          "name": "01 - Missing Token Rejection",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is strictly below 300ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);",
+                  "});",
+                  "",
+                  "pm.test(\"Response adheres to JSON Schema\", function () {",
+                  "    var schema = {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"title\": \"ErrorResponse\", \"description\": \"Standard error response shape across all error codes\", \"type\": \"object\", \"required\": [\"error_code\", \"message\", \"details\"], \"properties\": {\"error_code\": {\"type\": \"string\"}, \"message\": {\"type\": \"string\"}, \"details\": {\"type\": [\"array\", \"object\", \"null\"]}}, \"additionalProperties\": false};",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/employees",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "employees"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02 - Bad / Tampered Token Rejection",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is strictly below 300ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);",
+                  "});",
+                  "",
+                  "pm.test(\"Response adheres to JSON Schema\", function () {",
+                  "    var schema = {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"title\": \"ErrorResponse\", \"description\": \"Standard error response shape across all error codes\", \"type\": \"object\", \"required\": [\"error_code\", \"message\", \"details\"], \"properties\": {\"error_code\": {\"type\": \"string\"}, \"message\": {\"type\": \"string\"}, \"details\": {\"type\": [\"array\", \"object\", \"null\"]}}, \"additionalProperties\": false};",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer invalid.signature.token",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/employees",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "employees"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03 - Employee Creating User Forbidden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is strictly below 300ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);",
+                  "});",
+                  "",
+                  "pm.test(\"Response adheres to JSON Schema\", function () {",
+                  "    var schema = {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"title\": \"ErrorResponse\", \"description\": \"Standard error response shape across all error codes\", \"type\": \"object\", \"required\": [\"error_code\", \"message\", \"details\"], \"properties\": {\"error_code\": {\"type\": \"string\"}, \"message\": {\"type\": \"string\"}, \"details\": {\"type\": [\"array\", \"object\", \"null\"]}}, \"additionalProperties\": false};",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/employees",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "employees"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Unauthorized Add\",\n  \"email\": \"unauthorized.add@company.com\",\n  \"department\": \"HR\",\n  \"salary\": 50000.0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04 - Employee Deleting User Forbidden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is strictly below 300ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);",
+                  "});",
+                  "",
+                  "pm.test(\"Response adheres to JSON Schema\", function () {",
+                  "    var schema = {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"title\": \"ErrorResponse\", \"description\": \"Standard error response shape across all error codes\", \"type\": \"object\", \"required\": [\"error_code\", \"message\", \"details\"], \"properties\": {\"error_code\": {\"type\": \"string\"}, \"message\": {\"type\": \"string\"}, \"details\": {\"type\": [\"array\", \"object\", \"null\"]}}, \"additionalProperties\": false};",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/employees/EMP-1001",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "employees",
+                "EMP-1001"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02_Employee CRUD",
+      "item": [
+        {
+          "name": "01 - Admin Create Employee",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is strictly below 300ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);",
+                  "});",
+                  "",
+                  "pm.test(\"Response adheres to JSON Schema\", function () {",
+                  "    var schema = {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"title\": \"EmployeeResponse\", \"description\": \"Schema for Employee response payload\", \"type\": \"object\", \"required\": [\"employee_id\", \"full_name\", \"email\", \"department\", \"salary\", \"is_active\", \"created_at\"], \"properties\": {\"employee_id\": {\"type\": \"string\", \"pattern\": \"^EMP-\\\\d+$\"}, \"full_name\": {\"type\": \"string\", \"minLength\": 2, \"maxLength\": 80}, \"email\": {\"type\": \"string\", \"format\": \"email\"}, \"department\": {\"type\": \"string\", \"enum\": [\"Engineering\", \"HR\", \"Finance\", \"Operations\"]}, \"salary\": {\"type\": \"number\", \"minimum\": 30000, \"maximum\": 500000}, \"is_active\": {\"type\": \"boolean\"}, \"created_at\": {\"type\": \"string\"}}, \"additionalProperties\": false};",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();\npm.environment.set('created_employee_id', jsonData.employee_id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/employees",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "employees"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Priya Sharma\",\n  \"email\": \"priya.newman@company.com\",\n  \"department\": \"Engineering\",\n  \"salary\": 95000.0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02 - Admin Get Created Employee",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is strictly below 300ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);",
+                  "});",
+                  "",
+                  "pm.test(\"Response adheres to JSON Schema\", function () {",
+                  "    var schema = {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"title\": \"EmployeeResponse\", \"description\": \"Schema for Employee response payload\", \"type\": \"object\", \"required\": [\"employee_id\", \"full_name\", \"email\", \"department\", \"salary\", \"is_active\", \"created_at\"], \"properties\": {\"employee_id\": {\"type\": \"string\", \"pattern\": \"^EMP-\\\\d+$\"}, \"full_name\": {\"type\": \"string\", \"minLength\": 2, \"maxLength\": 80}, \"email\": {\"type\": \"string\", \"format\": \"email\"}, \"department\": {\"type\": \"string\", \"enum\": [\"Engineering\", \"HR\", \"Finance\", \"Operations\"]}, \"salary\": {\"type\": \"number\", \"minimum\": 30000, \"maximum\": 500000}, \"is_active\": {\"type\": \"boolean\"}, \"created_at\": {\"type\": \"string\"}}, \"additionalProperties\": false};",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/employees/{{created_employee_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "employees",
+                "{{created_employee_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03 - Admin Update Created Employee",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is strictly below 300ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);",
+                  "});",
+                  "",
+                  "pm.test(\"Response adheres to JSON Schema\", function () {",
+                  "    var schema = {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"title\": \"EmployeeResponse\", \"description\": \"Schema for Employee response payload\", \"type\": \"object\", \"required\": [\"employee_id\", \"full_name\", \"email\", \"department\", \"salary\", \"is_active\", \"created_at\"], \"properties\": {\"employee_id\": {\"type\": \"string\", \"pattern\": \"^EMP-\\\\d+$\"}, \"full_name\": {\"type\": \"string\", \"minLength\": 2, \"maxLength\": 80}, \"email\": {\"type\": \"string\", \"format\": \"email\"}, \"department\": {\"type\": \"string\", \"enum\": [\"Engineering\", \"HR\", \"Finance\", \"Operations\"]}, \"salary\": {\"type\": \"number\", \"minimum\": 30000, \"maximum\": 500000}, \"is_active\": {\"type\": \"boolean\"}, \"created_at\": {\"type\": \"string\"}}, \"additionalProperties\": false};",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/employees/{{created_employee_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "employees",
+                "{{created_employee_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Priya Sharma-Patel\",\n  \"email\": \"priya.patel.newman@company.com\",\n  \"department\": \"Operations\",\n  \"salary\": 105000.0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04 - Admin Delete Created Employee",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is strictly below 300ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/employees/{{created_employee_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "employees",
+                "{{created_employee_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05 - Verify Deleted Employee 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is strictly below 300ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);",
+                  "});",
+                  "",
+                  "pm.test(\"Response adheres to JSON Schema\", function () {",
+                  "    var schema = {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"title\": \"ErrorResponse\", \"description\": \"Standard error response shape across all error codes\", \"type\": \"object\", \"required\": [\"error_code\", \"message\", \"details\"], \"properties\": {\"error_code\": {\"type\": \"string\"}, \"message\": {\"type\": \"string\"}, \"details\": {\"type\": [\"array\", \"object\", \"null\"]}}, \"additionalProperties\": false};",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/employees/{{created_employee_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "employees",
+                "{{created_employee_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03_Attendance & Boundaries",
+      "item": [
+        {
+          "name": "01 - Valid Check-In as Employee",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is strictly below 300ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);",
+                  "});",
+                  "",
+                  "pm.test(\"Response adheres to JSON Schema\", function () {",
+                  "    var schema = {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"title\": \"AttendanceResponse\", \"description\": \"Schema for Attendance response payload\", \"type\": \"object\", \"required\": [\"attendance_id\", \"employee_id\", \"date\", \"work_hours\", \"status\", \"created_at\"], \"properties\": {\"attendance_id\": {\"type\": \"string\", \"pattern\": \"^ATT-\\\\d+$\"}, \"employee_id\": {\"type\": \"string\", \"pattern\": \"^EMP-\\\\d+$\"}, \"date\": {\"type\": \"string\", \"pattern\": \"^\\\\d{4}-\\\\d{2}-\\\\d{2}$\"}, \"work_hours\": {\"type\": \"number\", \"minimum\": 0.5, \"maximum\": 16.0}, \"status\": {\"type\": \"string\", \"enum\": [\"Present\", \"Absent\", \"Half-Day\", \"Remote\"]}, \"created_at\": {\"type\": \"string\"}}, \"additionalProperties\": false};",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/attendance",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "attendance"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employee_id\": \"EMP-1001\",\n  \"date\": \"2026-11-20\",\n  \"work_hours\": 8.0,\n  \"status\": \"Present\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02 - Duplicate Check-In Conflict",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 409\", function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is strictly below 300ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);",
+                  "});",
+                  "",
+                  "pm.test(\"Response adheres to JSON Schema\", function () {",
+                  "    var schema = {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"title\": \"ErrorResponse\", \"description\": \"Standard error response shape across all error codes\", \"type\": \"object\", \"required\": [\"error_code\", \"message\", \"details\"], \"properties\": {\"error_code\": {\"type\": \"string\"}, \"message\": {\"type\": \"string\"}, \"details\": {\"type\": [\"array\", \"object\", \"null\"]}}, \"additionalProperties\": false};",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/attendance",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "attendance"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employee_id\": \"EMP-1001\",\n  \"date\": \"2026-11-20\",\n  \"work_hours\": 8.0,\n  \"status\": \"Remote\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03 - Negative Hours Validation Error",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 422\", function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is strictly below 300ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);",
+                  "});",
+                  "",
+                  "pm.test(\"Response adheres to JSON Schema\", function () {",
+                  "    var schema = {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"title\": \"ErrorResponse\", \"description\": \"Standard error response shape across all error codes\", \"type\": \"object\", \"required\": [\"error_code\", \"message\", \"details\"], \"properties\": {\"error_code\": {\"type\": \"string\"}, \"message\": {\"type\": \"string\"}, \"details\": {\"type\": [\"array\", \"object\", \"null\"]}}, \"additionalProperties\": false};",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/attendance",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "attendance"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employee_id\": \"EMP-1001\",\n  \"date\": \"2026-11-21\",\n  \"work_hours\": -1.0,\n  \"status\": \"Present\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04 - Excessive Hours Validation Error",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 422\", function () {",
+                  "    pm.response.to.have.status(422);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is strictly below 300ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);",
+                  "});",
+                  "",
+                  "pm.test(\"Response adheres to JSON Schema\", function () {",
+                  "    var schema = {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"title\": \"ErrorResponse\", \"description\": \"Standard error response shape across all error codes\", \"type\": \"object\", \"required\": [\"error_code\", \"message\", \"details\"], \"properties\": {\"error_code\": {\"type\": \"string\"}, \"message\": {\"type\": \"string\"}, \"details\": {\"type\": [\"array\", \"object\", \"null\"]}}, \"additionalProperties\": false};",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/attendance",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "attendance"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employee_id\": \"EMP-1001\",\n  \"date\": \"2026-11-21\",\n  \"work_hours\": 24.0,\n  \"status\": \"Present\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05 - Get Attendance List for Employee",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is strictly below 300ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(300);",
+                  "});",
+                  "",
+                  "pm.test(\"Response adheres to JSON Schema\", function () {",
+                  "    var schema = {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"type\": \"array\", \"items\": {\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"title\": \"AttendanceResponse\", \"description\": \"Schema for Attendance response payload\", \"type\": \"object\", \"required\": [\"attendance_id\", \"employee_id\", \"date\", \"work_hours\", \"status\", \"created_at\"], \"properties\": {\"attendance_id\": {\"type\": \"string\", \"pattern\": \"^ATT-\\\\d+$\"}, \"employee_id\": {\"type\": \"string\", \"pattern\": \"^EMP-\\\\d+$\"}, \"date\": {\"type\": \"string\", \"pattern\": \"^\\\\d{4}-\\\\d{2}-\\\\d{2}$\"}, \"work_hours\": {\"type\": \"number\", \"minimum\": 0.5, \"maximum\": 16.0}, \"status\": {\"type\": \"string\", \"enum\": [\"Present\", \"Absent\", \"Half-Day\", \"Remote\"]}, \"created_at\": {\"type\": \"string\"}}, \"additionalProperties\": false}};",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/attendance/EMP-1001",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "attendance",
+                "EMP-1001"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
