@@ -44,9 +44,9 @@ Base URL: `http://127.0.0.1:8000/api/v1`
 ```
 
 ### Attendance Create (`POST /attendance`)
-- `employee_id`: string, required (e.g. `"EMP-1001"`)
+- `employee_id`: string, required, pattern: `^EMP-\d+$` (e.g. `"EMP-1001"`)
 - `date`: string (ISO `YYYY-MM-DD` format), required
-- `work_hours`: number, required, minimum: 0.0, maximum: 24.0
+- `work_hours` (or `hours_worked`): number, required, minimum: 0.5, maximum: 16.0
 - `status`: enum `["Present", "Absent", "Half-Day", "Remote"]`, required
 
 ### Attendance Response (`200 OK` / `201 Created`)

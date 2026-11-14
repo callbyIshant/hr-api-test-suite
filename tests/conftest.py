@@ -32,7 +32,7 @@ def load_schema(schema_name: str) -> Dict[str, Any]:
 
 def validate_payload(instance: Any, schema_name: str) -> None:
     schema = load_schema(schema_name)
-    validator = Draft7Validator(schema)
+    validator = Draft7Validator(schema, format_checker=jsonschema.FormatChecker())
     errors = sorted(validator.iter_errors(instance), key=lambda e: e.path)
     if errors:
         error_msgs = "\n".join([f"- At {list(e.path)}: {e.message}" for e in errors])

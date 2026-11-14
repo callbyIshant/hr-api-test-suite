@@ -26,8 +26,8 @@
     },
     "work_hours": {
       "type": "number",
-      "minimum": 0,
-      "maximum": 24
+      "minimum": 0.5,
+      "maximum": 16.0
     },
     "status": {
       "type": "string",
