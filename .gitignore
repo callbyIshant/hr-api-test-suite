@@ -26,3 +26,8 @@ node_modules/
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Agent rules and internal specs
+AGENTS.md
+.agents/
+docs/API_SPEC.md
