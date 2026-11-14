@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ErrorResponse",
+  "description": "Standard error response shape across all error codes",
+  "type": "object",
+  "required": [
+    "error_code",
+    "message",
+    "details"
+  ],
+  "properties": {
+    "error_code": {
+      "type": "string"
+    },
+    "message": {
+      "type": "string"
+    },
+    "details": {
+      "type": ["array", "object", "null"]
+    }
+  },
+  "additionalProperties": false
+}

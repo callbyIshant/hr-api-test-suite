@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EmployeeResponse",
+  "description": "Schema for Employee response payload",
+  "type": "object",
+  "required": [
+    "employee_id",
+    "full_name",
+    "email",
+    "department",
+    "salary",
+    "is_active",
+    "created_at"
+  ],
+  "properties": {
+    "employee_id": {
+      "type": "string",
+      "pattern": "^EMP-\\d+$"
+    },
+    "full_name": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 80
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "department": {
+      "type": "string",
+      "enum": ["Engineering", "HR", "Finance", "Operations"]
+    },
+    "salary": {
+      "type": "number",
+      "minimum": 30000,
+      "maximum": 500000
+    },
+    "is_active": {
+      "type": "boolean"
+    },
+    "created_at": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}
